@@ -1,0 +1,150 @@
+---
+title: 'ggplot2 Templates for Wet-Lab People '
+author: "Hung-Ji Tsai @School of Biosciences, University of Birmingham"
+output:
+  html_document: default
+  word_document: default
+  pdf_document: default
+---
+
+### *Recource*
+
+### Install R and R studio
+R: https://cran.ma.imperial.ac.uk/  
+R studio: https://rstudio.com/products/rstudio/download/#download  
+
+#### trouble shooting your R codes:
+http://www.sthda.com/english/wiki/ggplot2-essentials  
+http://www.cookbook-r.com/Graphs/
+
+### Loading packages : ggplot2
+```{r libraries, warning = FALSE, message = FALSE}
+
+library(ggplot2)
+
+```
+
+### Setting your file directory and loading your data
+```{r warning = FALSE}
+
+#data files
+data2 <- read.csv("size.csv", header = TRUE)
+data2.5 <- read.csv("size2.csv", header = TRUE)
+data2.5_stat <- read.csv("size_stat.csv", header = TRUE)
+data3 <- read.csv("size3.csv", header = TRUE)
+data4 <- read.csv("size4.csv", header = TRUE)
+
+head(data2)
+head(data2.5)
+head(data2.5_stat)
+head(data3)
+head(data4)
+
+```
+
+### Simple version  
+
+```{r echo=TRUE, fig.width = 4.5, fig.height=3, warning= FALSE}
+
+#built-in plot in R
+##you don't need any package for this plot. you can simply give R what's "x" and what's "y".
+boxplot(size~strain,data=data2, xlab="size", ylab="strain")
+
+#ploting raw data point
+# stat require an additional line, but flexible
+ggplot(data2, aes(x=strain, y=size)) +
+  geom_jitter(shape = 1) +
+  stat_summary(fun=mean, geom="crossbar", colour = "steelblue", position=position_dodge(width=0.5))
+
+
+#boxplot
+ggplot(data2, aes(x=strain, y=size, fill= strain)) +
+  geom_boxplot() +
+  stat_summary(fun=mean, geom="point", shape = 5, position=position_dodge(width=0.5))
+
+#histogram
+ggplot(data2, aes(x=size, fill=strain)) +
+  geom_histogram(binwidth=75, alpha=0.45, position="identity")  
+
+#density plot
+ggplot(data2, aes(x=size, fill=strain)) +
+  geom_density(alpha=0.45) 
+
+#violin plot
+ggplot(data2, aes(x=strain, y=size, fill=strain)) +
+  geom_violin(alpha =0.45) 
+
+#Line plot
+ggplot(data2.5_stat, aes(x=strain, y=mean)) +
+  geom_point() +
+  geom_line(aes(group=1)) +
+  geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=0.2)
+
+
+#Scatter plot
+ggplot(data3, aes(x=cellcycle, y=size, color=strain))+
+  geom_point(size=3) +
+  theme(legend.position="none")
+
+##Trend lines
+ggplot(data3, aes(x=cellcycle, y=size))+
+  geom_point(size =3, alpha = 0.5, color = "red") +
+  geom_smooth(method = lm) +
+  theme(legend.position="none")
+
+```
+
+## Customize your figure to the way you like
+
+#### *Shapes* http://www.cookbook-r.com/Graphs/Shapes_and_line_types/   
+#### *Color* http://www.cookbook-r.com/Graphs/Colors_(ggplot2)/ 
+
+##### *Style*    
+##### *Size*  
+##### *Color*  
+##### *Science*  
+#### Build your plot by layers
+
+### Example 1:
+```{r echo=TRUE, warning=FALSE, fig.width = 6, fig.heigh = 4, warning= FALSE}
+
+#original example
+ggplot(data2, aes(x=strain, y=size)) +
+  geom_boxplot(outlier.shape=NA) 
+  
+#modified/polished version
+ggplot(data2, aes(x=strain, y=size, fill = strain)) +
+  #note:raw data
+  geom_jitter(shape = 1, height = 0, color="#BDC0BA", size = 2, width = 0.3) +
+  #note:box plots
+  geom_boxplot(outlier.color = "darkred", outlier.shape = 4) +
+  
+  #note:add necessary stats
+  stat_summary(fun = "mean", geom = "point", shape = 21, size = 3, fill = "white") +
+  #note:change sample names on X-axis
+  scale_x_discrete(labels=c("haploids","diploids","triploids", "tetraploids")) +
+  #note:change box colors
+  scale_fill_manual(values=c("#B28FCE", "#81C7D4","#58B2DC","#66327C")) +
+  #note:change backgroup colors
+  theme_bw() +
+  #note:change X-axis labels
+  theme(axis.title.x = element_text(face="bold", colour="grey", size=16),
+        axis.text.x  = element_text(size=12),
+  #note:change Y-axis labels
+        axis.title.y = element_text(face="bold", colour="grey", size=16),
+        axis.text.y = element_text(size=12)) +
+  #note:change Y-axis scale
+  ylim(0,2100) +
+  #note:change axis labels
+  ylab("size (a.u.)") +  
+  xlab("") +
+  #note:change Y-axis
+  labs(title = "Ploidy effects")
+  
+```
+  
+  
+  
+  
+##### 2020/12/10 v1 Hung-Ji
+##### 2021/02/21 v2 Hung-Ji simplified version
